@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chromium 74 / V8 Detector & Exploits</title>
+    <style>
+        body { font-family: monospace; background: #1a1a1a; color: #00ff00; padding: 20px; max-width: 800px; margin: auto; }
+        h1 { color: #ff4081; text-align: center; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+        .card { background: #2d2d2d; padding: 20px; border-radius: 8px; border-left: 4px solid #ff4081; }
+        a { color: #00b0ff; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+        pre { background: #000; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        button { background: #ff4081; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🔥 Chromium 74 / V8 7.4 Detector & Exploits</h1>
+    <p>Тесты для Huawei EMUI WebView (Chrome/74.0.3729.136). RCE → FRP bypass chain.</p>
+    
+    <div class="grid">
+        <div class="card">
+            <h3>🎯 V8 Engine Version</h3>
+            <button onclick="detectV8()">Detect V8 Build</button>
+            <pre id="v8out"></pre>
+        </div>
+        
+        <div class="card">
+            <h3>🛡️ Sandbox Test</h3>
+            <a href="https://browserleaks.com/sandbox" target="_blank">BrowserLeaks Sandbox</a><br>
+            <a href="https://mrale.ph/sandbox/" target="_blank">MrAle Sandbox Escape</a>
+        </div>
+        
+        <div class="card">
+            <h3>💥 CVE-2019-13720 PoC</h3>
+            <a href="https://github.com/0x09AL/CVE-2019-13720-PoC" target="_blank">GitHub PoC</a><br>
+            <a href="https://browserleaks.com/webaudio" target="_blank">WebAudio UAF Test</a>
+        </div>
+        
+        <div class="card">
+            <h3>🔍 Full Fingerprint</h3>
+            <a href="https://abrahamjuliot.github.io/creepjs/" target="_blank">CreepJS</a><br>
+            <a href="https://browserleaks.com/" target="_blank">BrowserLeaks Full</a>
+        </div>
+        
+        <div class="card">
+            <h3>⚙️ Chromium Flags</h3>
+            <a href="chrome://version/" target="_blank">chrome://version/</a><br>
+            <a href="chrome://flags/" target="_blank">chrome://flags/</a>
+        </div>
+        
+        <div class="card">
+            <h3>📱 FRP WebView Tests</h3>
+            <a href="https://html5test.com/" target="_blank">HTML5 Score (должен быть <450)</a><br>
+            <a href="https://fingerprintjs.com/demo/" target="_blank">Canvas Leak</a>
+        </div>
+    </div>
+    
+    <script>
+        function detectV8() {
+            const out = document.getElementById('v8out');
+            let info = '';
+            
+            // V8 Proxy leak
+            try {
+                const collator = new Intl.Collator().resolvedOptions();
+                info += 'V8 Proxy: ' + JSON.stringify(collator, null, 2) + '\n';
+            } catch(e) { info += 'Intl leak: ' + e.message + '\n'; }
+            
+            // JIT fingerprint
+            const start = performance.now();
+            let sum = 0;
+            for(let i = 0; i < 1e6; i++) sum += Math.sin(i);
+            info += `JIT Loop: ${(performance.now() - start).toFixed(2)}ms (V8 JIT signature)\n`;
+            
+            // V8-specific
+            info += `User-Agent: ${navigator.userAgent}\n`;
+            info += `Platform: ${navigator.platform}\n`;
+            info += `WeakMap: ${!!WeakMap}\n`;
+            
+            out.textContent = info;
+        }
+        
+        // Auto-run
+        detectV8();
+    </script>
+</body>
+</html>
